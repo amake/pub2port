@@ -1,70 +1,110 @@
-import 'package:args/args.dart';
-import 'package:dart2port/dart2port.dart';
+import 'dart:io';
 
-const String version = '0.0.1';
+import 'package:args/command_runner.dart';
 
-ArgParser buildParser() {
-  return ArgParser()
-    ..addFlag(
-      'help',
-      abbr: 'h',
-      negatable: false,
-      help: 'Print this usage information.',
-    )
+const version = '0.0.1';
+
+CommandRunner buildRunner() {
+  final runner =
+      CommandRunner('dart2port', 'Dart to port tool.')
+        ..addCommand(GetCommand())
+        ..addCommand(UpdateCommand());
+  runner.argParser
     ..addFlag(
       'verbose',
       abbr: 'v',
       negatable: false,
       help: 'Show additional command output.',
     )
-    ..addFlag('version', negatable: false, help: 'Print the tool version.')
-    ..addCommand('calculate');
+    ..addFlag(
+      'debug',
+      abbr: 'd',
+      negatable: false,
+      help: 'Print debug information.',
+    )
+    ..addFlag('version', negatable: false, help: 'Print the version.');
+  return runner;
 }
 
-void printUsage(ArgParser argParser) {
+class GetCommand extends Command {
+  GetCommand() {
+    argParser
+      ..addOption(
+        'output',
+        abbr: 'o',
+        help: 'Output FILE ("-" for stdout).',
+        valueHelp: 'FILE',
+        defaultsTo: '-',
+      )
+      ..addOption(
+        'dir',
+        abbr: 'd',
+        help: 'Directory of lockfile in repo.',
+        valueHelp: 'DIR',
+        defaultsTo: '/',
+      );
+  }
+
+  @override
+  String get name => 'get';
+
+  @override
+  String get description =>
+      'Generate a MacPorts portfile and output it to stdout.';
+
+  @override
+  void run() {
+    // TODO(aaron): Implement the get command.
+    print('Get command not yet implemented.');
+    exit(0);
+  }
+}
+
+class UpdateCommand extends Command {
+  UpdateCommand() {
+    argParser.addOption(
+      'output',
+      abbr: 'o',
+      help: 'Output FILE ("-" for stdout).',
+    );
+  }
+
+  @override
+  String get name => 'update';
+
+  @override
+  String get description => 'Overwrite an existing MacPorts portfile.';
+
+  @override
+  void run() {
+    // TODO(aaron): Implement the update command.
+    print('Update command not yet implemented.');
+    exit(0);
+  }
+}
+
+void printUsage(CommandRunner runner) {
   print('Usage: dart dart2port.dart <flags> [arguments]');
-  print(argParser.usage);
+  print(runner.usage);
 }
 
-void main(List<String> arguments) {
-  final ArgParser argParser = buildParser();
+void main(List<String> arguments) async {
+  final runner = buildRunner();
   try {
-    final ArgResults results = argParser.parse(arguments);
-    bool verbose = false;
-
-    // Process the parsed arguments.
-    if (results.flag('help')) {
-      printUsage(argParser);
-      return;
-    }
+    final results = runner.argParser.parse(arguments);
     if (results.flag('version')) {
       print('dart2port version: $version');
       return;
     }
-    if (results.flag('verbose')) {
-      verbose = true;
-    }
-    if (results.command != null) {
-      switch (results.command!.name) {
-        case 'calculate':
-          print('Calculate command: ${calculate()}');
-          break;
-        default:
-          print('Unknown command: ${results.command!.name}');
-          break;
-      }
-      return;
-    }
+  } catch (_) {
+    // ignore
+  }
 
-    // Act on the arguments provided.
-    print('Positional arguments: ${results.rest}');
-    if (verbose) {
-      print('[VERBOSE] All arguments: ${results.arguments}');
-    }
-  } on FormatException catch (e) {
-    // Print usage information if an invalid argument was provided.
-    print(e.message);
-    print('');
-    printUsage(argParser);
+  try {
+    runner.run(arguments);
+  } catch (error) {
+    if (error is! UsageException) rethrow;
+    print(error);
+    exit(64); // Exit code 64 indicates a usage error.
   }
 }
