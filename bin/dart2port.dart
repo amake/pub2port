@@ -1,4 +1,5 @@
 import 'package:args/args.dart';
+import 'package:dart2port/dart2port.dart';
 
 const String version = '0.0.1';
 
@@ -16,7 +17,8 @@ ArgParser buildParser() {
       negatable: false,
       help: 'Show additional command output.',
     )
-    ..addFlag('version', negatable: false, help: 'Print the tool version.');
+    ..addFlag('version', negatable: false, help: 'Print the tool version.')
+    ..addCommand('calculate');
 }
 
 void printUsage(ArgParser argParser) {
@@ -41,6 +43,17 @@ void main(List<String> arguments) {
     }
     if (results.flag('verbose')) {
       verbose = true;
+    }
+    if (results.command != null) {
+      switch (results.command!.name) {
+        case 'calculate':
+          print('Calculate command: ${calculate()}');
+          break;
+        default:
+          print('Unknown command: ${results.command!.name}');
+          break;
+      }
+      return;
     }
 
     // Act on the arguments provided.
