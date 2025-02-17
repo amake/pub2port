@@ -1,48 +1,50 @@
 import 'dart:io';
 
-import 'package:pubspec_lock_parse/pubspec_lock_parse.dart';
+import 'package:pubspec_lock/pubspec_lock.dart';
 
 void lockToPort(PubspecLock lockfile, {StringSink? out, StringSink? err}) {
   out ??= stdout;
   err ??= stderr;
 
-  final packageNames = lockfile.packages.keys.toList()..sort();
-  if (!packageNames.any(
-    (p) => lockfile.packages[p]!.source == PackageSource.hosted,
+  final packages = lockfile.packages.toList(growable: false);
+
+  if (packages.every(
+    (p) => p.iswitcho(hosted: (_) => false, otherwise: () => true),
   )) {
     err.writeln('No hosted packages found');
     return;
   }
-  final maxNameLength = packageNames
-      .where((p) => lockfile.packages[p]!.source == PackageSource.hosted)
-      .map((e) => e.length)
+  final maxNameLength = packages
+      .where((p) => p.iswitcho(hosted: (_) => true, otherwise: () => false))
+      .map((e) => e.package().length)
       .reduce((a, b) => a > b ? a : b);
-
-  final versions =
-      lockfile.packages.values
-          .where((p) => p.source == PackageSource.hosted)
-          .map((e) => e.version.toString())
-          .toList();
-  final maxVersionLength = versions
-      .map((e) => e.length)
+  final maxVersionLength = packages
+      .where((p) => p.iswitcho(hosted: (_) => true, otherwise: () => false))
+      .map((e) => e.version().length)
       .reduce((a, b) => a > b ? a : b);
 
   out.writeln(r'pub.packages \');
-  for (final packageName in packageNames) {
-    final package = lockfile.packages[packageName]!;
-    if (package.source != PackageSource.hosted) {
-      err.writeln('Skipping $packageName: not hosted');
+  for (final package in packages) {
+    if (!package.iswitcho(hosted: (_) => true, otherwise: () => false)) {
+      err.writeln('Skipping ${package.package()}: not hosted');
       continue;
     }
-    final description = package.description as HostedPackageDescription;
+    final hash = package.iswitcho(
+      hosted: (h) => h.sha256,
+      otherwise: () => null,
+    );
+    if (hash == null) {
+      err.writeln('Skipping ${package.package()}: missing sha256');
+      continue;
+    }
     out
       ..write('    ')
-      ..write(packageName.padRight(maxNameLength))
+      ..write(package.package().padRight(maxNameLength))
       ..write('  ')
-      ..write(package.version.toString().padLeft(maxVersionLength))
+      ..write(package.version().padLeft(maxVersionLength))
       ..write('  ')
-      ..write(description.sha256);
-    if (packageName != packageNames.last) {
+      ..write(hash);
+    if (!identical(package, packages.last)) {
       out.write(r' \');
     }
     out.writeln();

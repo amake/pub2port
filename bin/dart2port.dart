@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:args/args.dart';
 import 'package:dart2port/dart2port.dart';
-import 'package:pubspec_lock_parse/pubspec_lock_parse.dart';
+import 'package:pubspec_lock/pubspec_lock.dart';
 
 const version = String.fromEnvironment('APP_VERSION', defaultValue: 'unknown');
 
@@ -62,7 +62,7 @@ void main(List<String> arguments) {
       }
       try {
         final lockStr = file.readAsStringSync();
-        final lockfile = PubspecLock.parse(lockStr);
+        final lockfile = lockStr.loadPubspecLockFromYaml();
         lockToPort(lockfile);
       } catch (e) {
         stderr.writeln('Error processing $arg: $e');
