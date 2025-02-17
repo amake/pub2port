@@ -4,7 +4,7 @@ import 'package:args/args.dart';
 import 'package:dart2port/dart2port.dart';
 import 'package:pubspec_lock_parse/pubspec_lock_parse.dart';
 
-const String version = '0.0.1';
+const version = String.fromEnvironment('APP_VERSION', defaultValue: 'unknown');
 
 ArgParser buildParser() {
   return ArgParser()

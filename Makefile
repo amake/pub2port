@@ -1,11 +1,12 @@
 exe := dist/dart2port
+version_define = --define=APP_VERSION=$(shell sed -nE 's/version: *(([0-9.])+)/\1/p' pubspec.yaml)
 
 .PHONY: build
 build: ## Build the executable
 build: $(exe)
 
 $(exe): bin/dart2port.dart lib/dart2port.dart | dist
-	dart compile exe $(<) -o $(@)
+	dart compile exe $(version_define) $(<) -o $(@)
 
 dist:
 	mkdir -p $(@)
