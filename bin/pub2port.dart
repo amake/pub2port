@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:args/args.dart';
@@ -28,7 +29,31 @@ void printUsage(ArgParser argParser) {
   print(argParser.usage);
 }
 
-void main(List<String> arguments) {
+Future<String?> readArg(String arg) async {
+  if (arg == '-') {
+    return await stdin.transform(utf8.decoder).join();
+  }
+
+  final file = File(arg);
+  if (!file.existsSync()) {
+    stderr.writeln('File not found: $arg');
+    return null;
+  }
+  try {
+    return file.readAsStringSync();
+  } catch (e) {
+    stderr.writeln('Error reading $arg: $e');
+    return null;
+  }
+}
+
+bool hasStdin() => switch (stdioType(stdin)) {
+  StdioType.pipe => true,
+  StdioType.file => true,
+  _ => false,
+};
+
+void main(List<String> arguments) async {
   final ArgParser argParser = buildParser();
   try {
     final ArgResults results = argParser.parse(arguments);
@@ -46,22 +71,25 @@ void main(List<String> arguments) {
     if (results.flag('verbose')) {
       verbose = true;
     }
-    if (results.rest.isEmpty) {
+
+    final restArgs = [...results.rest];
+
+    if (hasStdin() && !restArgs.contains('-')) {
+      restArgs.add('-');
+    }
+
+    if (restArgs.isEmpty) {
       printUsage(argParser);
       exit(64);
     }
 
-    for (final arg in results.rest) {
-      if (verbose) {
-        stderr.writeln('Processing: $arg');
-      }
-      final file = File(arg);
-      if (!file.existsSync()) {
-        stderr.writeln('File not found: $arg');
-        continue;
-      }
+    for (final arg in restArgs) {
+      if (verbose) stderr.writeln('Processing: $arg');
+
+      final lockStr = await readArg(arg);
+      if (lockStr == null) continue;
+
       try {
-        final lockStr = file.readAsStringSync();
         final lockfile = lockStr.loadPubspecLockFromYaml();
         lockToPort(lockfile);
       } catch (e) {
