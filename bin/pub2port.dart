@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:args/args.dart';
-import 'package:dart2port/dart2port.dart';
+import 'package:pub2port/pub2port.dart';
 import 'package:pubspec_lock/pubspec_lock.dart';
 
 const version = String.fromEnvironment('APP_VERSION', defaultValue: 'unknown');
@@ -24,7 +24,7 @@ ArgParser buildParser() {
 }
 
 void printUsage(ArgParser argParser) {
-  print('Usage: dart2port <flags> [arguments]');
+  print('Usage: pub2port <flags> [arguments]');
   print(argParser.usage);
 }
 
@@ -40,7 +40,7 @@ void main(List<String> arguments) {
       return;
     }
     if (results.flag('version')) {
-      print('dart2port version: $version');
+      print('pub2port version: $version');
       return;
     }
     if (results.flag('verbose')) {

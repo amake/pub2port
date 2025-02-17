@@ -1,4 +1,4 @@
-name: dart2port
+name: pub2port
 description: A sample command-line application with basic argument parsing.
 version: 0.0.1
 # repository: https://github.com/my_org/my_repo
@@ -16,4 +16,4 @@ dev_dependencies:
   test: ^1.24.0
 
 executables:
-  dart2port:
+  pub2port:

@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-exe := dist/dart2port
+exe := dist/pub2port
 version := $(shell sed -nE 's/version: *(([0-9.])+)/\1/p' pubspec.yaml)
 version_define = --define=APP_VERSION=$(version)
 
@@ -8,7 +8,7 @@ version_define = --define=APP_VERSION=$(version)
 build: ## Build the executable
 build: $(exe)
 
-$(exe): bin/dart2port.dart lib/dart2port.dart | dist
+$(exe): bin/pub2port.dart lib/pub2port.dart | dist
 	dart compile exe $(version_define) $(<) -o $(@)
 
 dist:
@@ -24,7 +24,7 @@ test-unit:
 
 .PHONY: test-bin
 test-bin: $(exe)
-	@[[ $$($(exe) --version) = "dart2port version: $(version)" ]] && echo bin: ok
+	@[[ $$($(exe) --version) = "pub2port version: $(version)" ]] && echo bin: ok
 
 .PHONY: test-gen
 test-gen: $(exe)

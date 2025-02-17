@@ -1,5 +1,5 @@
+import 'package:pub2port/pub2port.dart';
 import 'package:pubspec_lock/pubspec_lock.dart';
-import 'package:dart2port/dart2port.dart';
 import 'package:test/test.dart';
 
 void main() {
