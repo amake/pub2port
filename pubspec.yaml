@@ -1,12 +1,11 @@
 name: pub2port
-description: A sample command-line application with basic argument parsing.
+description: A MacPorts (partial) portfile generator for Dart projects
 version: 0.0.1
-# repository: https://github.com/my_org/my_repo
+repository: https://github.com/amake/pub2port
 
 environment:
   sdk: ^3.7.0
 
-# Add regular dependencies here.
 dependencies:
   args: ^2.5.0
   pubspec_lock: ^3.0.2
