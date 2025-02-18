@@ -28,9 +28,9 @@ test-bin: $(exe)
 
 .PHONY: test-gen
 test-gen: $(exe)
-	@diff <($(exe) test/generate/fixture/pubspec.lock.cad57bc) test/generate/gold/output.cad57bc && echo path: ok
-	@diff <($(exe) <test/generate/fixture/pubspec.lock.cad57bc) test/generate/gold/output.cad57bc && echo file in: ok
-	@diff <(cat test/generate/fixture/pubspec.lock.cad57bc | $(exe)) test/generate/gold/output.cad57bc && echo pipe in: ok
+	@diff <($(exe) -v test/generate/fixture/pubspec.lock.cad57bc) test/generate/gold/output.cad57bc && echo path: ok
+	@diff <($(exe) -v <test/generate/fixture/pubspec.lock.cad57bc) test/generate/gold/output.cad57bc && echo file in: ok
+	@diff <(cat test/generate/fixture/pubspec.lock.cad57bc | $(exe) -v) test/generate/gold/output.cad57bc && echo pipe in: ok
 
 .PHONY: help
 help: ## Show this help text
