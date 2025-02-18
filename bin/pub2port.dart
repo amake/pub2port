@@ -29,11 +29,13 @@ void printUsage(ArgParser argParser) {
   print(argParser.usage);
 }
 
-Future<String?> readArg(String arg) async {
+Future<String?> readArg(String arg, {bool verbose = false}) async {
   if (arg == '-') {
+    if (verbose) stderr.writeln('Reading from stdin');
     return await stdin.transform(utf8.decoder).join();
   }
 
+  if (verbose) stderr.writeln('Processing: $arg');
   final file = File(arg);
   if (!file.existsSync()) {
     stderr.writeln('File not found: $arg');
@@ -85,9 +87,7 @@ void main(List<String> arguments) async {
 
     final errors = [];
     for (final arg in restArgs) {
-      if (verbose) stderr.writeln('Processing: $arg');
-
-      final lockStr = await readArg(arg);
+      final lockStr = await readArg(arg, verbose: verbose);
       if (lockStr == null) continue;
 
       try {
