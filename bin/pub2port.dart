@@ -76,7 +76,7 @@ void main(List<String> arguments) async {
 
     final restArgs = [...results.rest];
 
-    if (hasStdin() && !restArgs.contains('-')) {
+    if (hasStdin() && restArgs.isEmpty) {
       restArgs.add('-');
     }
 
