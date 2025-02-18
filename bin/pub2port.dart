@@ -83,6 +83,7 @@ void main(List<String> arguments) async {
       exit(64);
     }
 
+    final errors = [];
     for (final arg in restArgs) {
       if (verbose) stderr.writeln('Processing: $arg');
 
@@ -92,9 +93,23 @@ void main(List<String> arguments) async {
       try {
         final lockfile = lockStr.loadPubspecLockFromYaml();
         lockToPort(lockfile);
-      } catch (e) {
+      } catch (e, s) {
+        errors.add(e);
         stderr.writeln('Error processing $arg: $e');
+        if (verbose) {
+          stderr.writeln(s);
+        }
       }
+    }
+
+    if (errors.isNotEmpty) {
+      if (verbose) {
+        stderr.writeln('Errors:');
+        for (final e in errors) {
+          stderr.writeln('  $e');
+        }
+      }
+      exit(1);
     }
   } on FormatException catch (e) {
     // Print usage information if an invalid argument was provided.
