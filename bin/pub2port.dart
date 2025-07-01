@@ -56,10 +56,9 @@ bool hasStdin() => switch (stdioType(stdin)) {
 };
 
 void main(List<String> arguments) async {
-  final ArgParser argParser = buildParser();
+  final argParser = buildParser();
   try {
-    final ArgResults results = argParser.parse(arguments);
-    bool verbose = false;
+    final results = argParser.parse(arguments);
 
     // Process the parsed arguments.
     if (results.flag('help')) {
@@ -69,9 +68,6 @@ void main(List<String> arguments) async {
     if (results.flag('version')) {
       print('pub2port version: $version');
       return;
-    }
-    if (results.flag('verbose')) {
-      verbose = true;
     }
 
     final restArgs = [...results.rest];
@@ -84,6 +80,8 @@ void main(List<String> arguments) async {
       printUsage(argParser);
       exit(64);
     }
+
+    final verbose = results.flag('verbose');
 
     final errors = [];
     for (final arg in restArgs) {
